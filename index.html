@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>かみあわない夜</title>
+<meta name="description" content="雪山ペンションの婚活ツアーで、34歳・彼女いない歴＝年齢の僕が妄想と勘違いで事件を起こすサウンドノベル。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <canvas id="snow"></canvas>
+  <div id="charas"></div>
+  <div id="tint"></div>
+  <div id="flash"></div>
+  <div id="textlayer">
+    <div id="text"></div>
+    <div id="choices"></div>
+    <div id="cursor">▼</div>
+  </div>
+  <div id="titlecard"></div>
+  <div id="hud">
+    <button id="btn-skip" title="既読スキップ (Ctrl)">スキップ</button>
+    <button id="btn-auto" title="オート (A)">オート</button>
+    <button id="btn-log" title="バックログ (L)">ログ</button>
+    <button id="btn-menu" title="メニュー (Esc)">メニュー</button>
+  </div>
+
+  <!-- タイトル画面 -->
+  <div id="title" class="screen">
+    <div class="title-inner">
+      <div class="title-sub">サウンドノベル</div>
+      <h1>かみあわない<span>夜</span></h1>
+      <div class="title-catch">34年間、守ってきたものがある。<br>——今夜、それが試される。</div>
+      <nav id="title-menu"></nav>
+      <div id="title-info"></div>
+    </div>
+  </div>
+
+  <!-- 汎用パネル -->
+  <div id="panel" class="screen">
+    <div class="panel-inner">
+      <h2 id="panel-title"></h2>
+      <div id="panel-body"></div>
+      <button id="panel-close">もどる</button>
+    </div>
+  </div>
+
+  <!-- エンディング -->
+  <div id="ending" class="screen">
+    <div class="ending-inner">
+      <div id="ending-no"></div>
+      <div id="ending-title"></div>
+      <div id="ending-type"></div>
+      <div id="ending-count"></div>
+      <div id="ending-extra"></div>
+      <div class="ending-hint">クリックでタイトルへ</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/parser.js"></script>
+<script>window.SCN_SOURCES = []; window.SCN = { add: function (t) { var s = document.currentScript; SCN_SOURCES.push({ name: s ? s.src.split('/').pop() : '?', text: t }); } };</script>
+<script src="scenario/00_prologue.js"></script>
+<script src="scenario/10_chapter2.js"></script>
+<script src="scenario/15_chapter3.js"></script>
+<script src="scenario/20_moteki.js"></script>
+<script src="scenario/30_yokoku.js"></script>
+<script src="scenario/40_sagi.js"></script>
+<script src="scenario/50_yukionna.js"></script>
+<script src="scenario/60_mystery.js"></script>
+<script src="scenario/70_truth.js"></script>
+<script src="js/art.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/engine.js"></script>
+</body>
+</html>
