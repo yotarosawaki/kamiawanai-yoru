@@ -357,6 +357,12 @@
     setTimeout(run, 200);
   }
   function newGame() { SOUND.init(); startFrom(newState()); }
+  const SLOTS = [1, 2, 3, 4, 5, 6];
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+  }
   function saveSlot(n) {
     if (!page) return;
     const first = el.text.firstChild ? el.text.firstChild.textContent : '';
@@ -388,8 +394,9 @@
     el.titleMenu.innerHTML = '';
     const add = (label, fn, cls) => { const b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls; b.addEventListener('click', () => { SOUND.init(); SOUND.se('select'); fn(); }); el.titleMenu.appendChild(b); };
     add('はじめから', newGame);
-    const hasSave = ['auto', 1, 2, 3].some(k => load('save_' + k, null));
-    if (hasSave) add('つづきから', () => openLoad());
+    const auto = load('save_auto', null);
+    if (auto) add('つづきから', () => startFrom(auto));
+    if (SLOTS.some(k => load('save_' + k, null))) add('ロード', () => openLoad());
     if (G.branchSave) add('分岐点から', () => startFrom(G.branchSave), G.gold ? 'gold' : '');
     add('エンディング一覧', openEndings);
     add('設定', openSettings);
@@ -430,7 +437,7 @@
   }
   function slotList(mode) {
     const box = document.createElement('div');
-    const keys = mode === 'save' ? [1, 2, 3] : ['auto', 1, 2, 3];
+    const keys = mode === 'save' ? SLOTS : ['auto'].concat(SLOTS);
     keys.forEach(k => {
       const d = load('save_' + k, null);
       const b = document.createElement('button');
@@ -441,7 +448,10 @@
       b.querySelector('small').textContent = d ? fmtTime(d.time) + (d.preview ? '　' + d.preview.slice(0, 30) : '') : '';
       if (mode === 'load' && !d) b.disabled = true;
       b.addEventListener('click', () => {
-        if (mode === 'save') { saveSlot(k); SOUND.se('chime'); openPanel('セーブ', slotList('save')); }
+        if (mode === 'save') {
+          if (d && !confirm('しおり ' + k + ' に上書きしますか？')) return;
+          saveSlot(k); SOUND.se('chime'); closePanel(); toast('しおり ' + k + ' にセーブしました');
+        }
         else startFrom(d);
       });
       box.appendChild(b);
@@ -449,7 +459,12 @@
     return box;
   }
   function openLoad() { openPanel('ロード', slotList('load')); }
-  function openSave() { openPanel('セーブ（いま読んでいるページの頭から再開）', slotList('save')); }
+  function openSave() {
+    const box = slotList('save');
+    const p = document.createElement('p'); p.style.cssText = 'color:var(--ink-dim);font-size:13px;margin:4px 0 0';
+    p.textContent = '※ いま読んでいるページの頭から再開します。読んだ場所は自動でも記録され、タイトルの「つづきから」で再開できます。';
+    box.appendChild(p); openPanel('セーブ', box);
+  }
   function openSettings() {
     const box = document.createElement('div');
     const mk = (label, key, min, max, step, fn) => {
@@ -482,9 +497,9 @@
       '<p>ミステリー編の、あるエンディングを見ると「金のしおり」が手に入り、物語の核心に触れる道が開きます。</p>' +
       '<p><b>操作</b><br>クリック／タップ・<kbd>Enter</kbd>・<kbd>Space</kbd>：読み進める<br>' +
       '<kbd>1</kbd>〜<kbd>6</kbd>：選択肢を選ぶ<br><kbd>Ctrl</kbd>（押している間）：既読スキップ<br>' +
-      '<kbd>A</kbd>：オート　<kbd>L</kbd> またはホイール上：ログ　<kbd>H</kbd>：文字を隠す　<kbd>Esc</kbd>：メニュー</p>' +
+      '<kbd>S</kbd>：セーブ　<kbd>A</kbd>：オート　<kbd>L</kbd> またはホイール上：ログ　<kbd>H</kbd>：文字を隠す　<kbd>Esc</kbd>：メニュー</p>' +
       '<p>スキップは一度読んだ文章だけを飛ばします。2周目以降は「分岐点から」を使うと、第三章の終わりから始められます。</p>' +
-      '<p>進み具合はこのブラウザに自動で記録されます。</p></div>');
+      '<p><b>セーブ</b><br>画面右上の「セーブ」で、しおり（6か所）に保存できます。読んだ場所は自動でも記録されるので、タイトルの「つづきから」でいつでも続きから再開できます。記録はこのブラウザに保存されます。</p></div>');
   }
   function openLog() {
     const box = document.createElement('div'); box.className = 'log';
@@ -519,6 +534,8 @@
   }
   $('btn-skip').addEventListener('click', e => { e.stopPropagation(); toggleSkip(); });
   $('btn-auto').addEventListener('click', e => { e.stopPropagation(); toggleAuto(); });
+  $('btn-save').addEventListener('click', e => { e.stopPropagation(); openSave(); });
+  $('btn-load').addEventListener('click', e => { e.stopPropagation(); openLoad(); });
   $('btn-log').addEventListener('click', e => { e.stopPropagation(); openLog(); });
   $('btn-menu').addEventListener('click', e => { e.stopPropagation(); openMenu(); });
 
@@ -546,7 +563,7 @@
     else if (e.key === 'a' || e.key === 'A') toggleAuto();
     else if (e.key === 'l' || e.key === 'L') openLog();
     else if (e.key === 'h' || e.key === 'H') toggleHide();
-    else if (e.key === 's' || e.key === 'S') toggleSkip();
+    else if (e.key === 's' || e.key === 'S') openSave();
   });
   document.addEventListener('keyup', e => { if (e.key === 'Control') { ctrlSkip = false; updateHud(); } });
   window.addEventListener('blur', () => { ctrlSkip = false; updateHud(); });
